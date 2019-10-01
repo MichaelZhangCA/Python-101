@@ -1,0 +1,477 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled2.ipynb",
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MichaelZhangCA/Python-101/blob/master/Sum%20to%20zero\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "rWXRqFD9nITc",
+        "colab_type": "text"
+      },
+      "source": [
+        " ## Question\n",
+        "By given a random array of integer, find all the combinations for any 3 number and sum up equale zero**\n",
+        "\n",
+        "ex. given an array [-1,12,0,2,1,3,-4]\n",
+        "will get the combination (-1,0,1) (1,3,-4)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Y1KBTiUImz9j",
+        "colab_type": "text"
+      },
+      "source": [
+        "## **Define a timer to count execution time for code block**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "2ZHR8lvpmllc",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "from time import time, strftime, localtime\n",
+        "from datetime import timedelta\n",
+        "\n",
+        "class CodeTimer(object):\n",
+        "\n",
+        "    recentlog = \"\"\n",
+        "\n",
+        "    def __init__(self, codesnip='== default wrap codes ==', **kwargs):\n",
+        "        self.codesnip = codesnip\n",
+        "        super().__init__(**kwargs)\n",
+        "\n",
+        "    def __enter__(self):\n",
+        "        self.start = time()\n",
+        "        return self\n",
+        "\n",
+        "    def __exit__(self, exc_type, exc_val, exc_tb):\n",
+        "        self.__endlog()\n",
+        "\n",
+        "\n",
+        "    def __endlog(self):\n",
+        "        self.end = time()\n",
+        "        self.elapsed = self.end - self.start\n",
+        "\n",
+        "        CodeTimer.recentlog = \"[ {} ] executed in {}\".format(self.codesnip, self.__secondsToStr(self.elapsed))\n",
+        "        print(CodeTimer.recentlog)\n",
+        "\n",
+        "    def __secondsToStr(self, elapsed):\n",
+        "        return str(timedelta(seconds=elapsed))"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Nyn-oQMTn-dG",
+        "colab_type": "text"
+      },
+      "source": [
+        "## 1. Start from a simple loop to get all combinations then check sum one by one"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "NoaPTejqn9PQ",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "def sum_to_zero_by_loop(lst):\n",
+        "    # to grab 3 elements from the list also walk through all the possibility\n",
+        "    combs = []\n",
+        "    with CodeTimer('find all combinations'):\n",
+        "        # try a for loop\n",
+        "        for i in range(len(lst)):\n",
+        "            for j in range(i+1, len(lst)):\n",
+        "                for k in range(j+1, len(lst)):\n",
+        "                    combs.append([lst[i],lst[j],lst[k]])\n",
+        "\n",
+        "    \n",
+        "    # loop the combination and sum\n",
+        "    with CodeTimer('find all groups with sum==0'):\n",
+        "        zerosumlist = [ cb for cb in combs if sum(cb)==0 ]\n",
+        "\n",
+        "    return zerosumlist"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "omlDwzJ7oeqp",
+        "colab_type": "text"
+      },
+      "source": [
+        "### for a small array, there is no performance concern"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ODfVR8b8odnb",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 102
+        },
+        "outputId": "f6d026fb-3f08-4862-ba71-900bbb1aa827"
+      },
+      "source": [
+        "%%time\n",
+        "rlt = sum_to_zero_by_loop([-1,12,0,2,1,3,-4,8,22,-19,5,-14])\n",
+        "print(rlt)"
+      ],
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "[ find all combinations ] executed in 0:00:00.000078\n",
+            "[ find all groups with sum==0 ] executed in 0:00:00.000057\n",
+            "[[-1, 0, 1], [-1, -4, 5], [12, 2, -14], [1, 3, -4]]\n",
+            "CPU times: user 953 µs, sys: 989 µs, total: 1.94 ms\n",
+            "Wall time: 1.34 ms\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "yOgji9HIos1k",
+        "colab_type": "text"
+      },
+      "source": [
+        "### or a lager array (500), obviously it's not efficient (more than 30 sec)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "eEikGF-yoojr",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 68
+        },
+        "outputId": "bf1ab91c-bd61-4acc-8349-71fa52768c26"
+      },
+      "source": [
+        "import numpy as np\n",
+        "def find_all_combination_by_loop(cnt):\n",
+        "    samples = np.random.RandomState(0).randint(low=-10000, high=10000, size=cnt)\n",
+        "    rlt = sum_to_zero_by_loop(samples)\n",
+        "    print('find {} groups which sum==0'.format(len(rlt)))\n",
+        "\n",
+        "find_all_combination_by_loop(500)"
+      ],
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "[ find all combinations ] executed in 0:00:20.583952\n",
+            "[ find all groups with sum==0 ] executed in 0:00:10.079492\n",
+            "find 725 groups which sum==0\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "kVxVrnujpGue",
+        "colab_type": "text"
+      },
+      "source": [
+        "## 2. Use itertools to get combination instead of a loop"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "6QAmp0oOowSR",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "import itertools\n",
+        "def sum_to_zero_by_iter(lst):\n",
+        "    # to grab 3 elements from the list also walk through all the possibility\n",
+        "\n",
+        "    with CodeTimer('find all combinations by itertools'):\n",
+        "        combs = itertools.combinations(lst,3)\n",
+        "\n",
+        "    # loop the combination and sum\n",
+        "    with CodeTimer('find all groups with sum==0'):\n",
+        "        zerosumlist = [ cb for cb in combs if sum(cb)==0 ]\n",
+        "\n",
+        "    return zerosumlist\n",
+        "\n",
+        "def find_all_combination_by_iter(cnt):\n",
+        "    samples = np.random.RandomState(0).randint(low=-10000, high=10000, size=cnt)\n",
+        "    rlt = sum_to_zero_by_iter(samples)\n",
+        "    print('find {} groups which sum==0'.format(len(rlt)))"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "xmVEDXPjpSUe",
+        "colab_type": "text"
+      },
+      "source": [
+        "### itertools can get all the combinations within no time, the exection time is all for checking sum"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "GpUP-gN4pU7t",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 68
+        },
+        "outputId": "c845737f-f98a-4aec-cf50-78642fbc3b20"
+      },
+      "source": [
+        "find_all_combination_by_iter(500)"
+      ],
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "[ find all combinations by itertools ] executed in 0:00:00.000044\n",
+            "[ find all groups with sum==0 ] executed in 0:00:10.603627\n",
+            "find 725 groups which sum==0\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "nxmJ25k3peaJ",
+        "colab_type": "text"
+      },
+      "source": [
+        "## 3. Try to check the sum in loop directly"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "W3mdCeukpWTG",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "def sum_to_zero_by_onestep_loop(lst):\n",
+        "    # to grab 3 elements from the list also walk through all the possibility\n",
+        "    zerosumlist = []\n",
+        "    with CodeTimer('find all group in one step'):\n",
+        "        # try a for loop\n",
+        "        for i in range(len(lst)):\n",
+        "            for j in range(i+1, len(lst)):\n",
+        "                for k in range(j+1, len(lst)):\n",
+        "                    if ((lst[i] + lst[j] + lst[k]) == 0):\n",
+        "                        zerosumlist.append([lst[i],lst[j],lst[k]])\n",
+        "    \n",
+        "    return zerosumlist\n",
+        "\n",
+        "def find_all_combination_by_onestep_loop(cnt):\n",
+        "    samples = np.random.RandomState(0).randint(low=-10000, high=10000, size=cnt)\n",
+        "    rlt = sum_to_zero_by_onestep_loop(samples)\n",
+        "    print('find {} groups which sum==0'.format(len(rlt)))"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "VRa5F2d0pkbl",
+        "colab_type": "text"
+      },
+      "source": [
+        "### the same size array (500) use roughly the same if check the sum in the loop"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "L_6ZdjWuph31",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 51
+        },
+        "outputId": "10fc528a-6d0e-4524-f46a-b2e21f58d03c"
+      },
+      "source": [
+        "find_all_combination_by_onestep_loop(500)"
+      ],
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "[ find all group in one step ] executed in 0:00:11.084332\n",
+            "find 725 groups which sum==0\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_AHhI2-EprdA",
+        "colab_type": "text"
+      },
+      "source": [
+        "### <font color='blue'>the looping function above actually is the same as chcking sum on the combination, which causes the slowness</font>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "uFEp6DmqpuE3",
+        "colab_type": "text"
+      },
+      "source": [
+        "## 4. Try sort the array before looping\n",
+        "### and put 2 more checkings based on the sorted array"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "8pduaDi7pnHM",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "def sum_to_zero_by_sort_and_loop(lst):\n",
+        "    # to grab 3 elements from the list also walk through all the possibility\n",
+        "    zerosumlist = []\n",
+        "    with CodeTimer('sort the array'):\n",
+        "        srt = np.sort(lst)\n",
+        "        \n",
+        "    with CodeTimer('find all group on sorted array'):\n",
+        "        # try a for loop\n",
+        "        for i in range(len(srt)):\n",
+        "            for j in range(i+1, len(lst)):\n",
+        "                tmp = srt[i] + srt[j]\n",
+        "                # check #1: \n",
+        "                # if the sumray of 2 number already larger than 0, then stop\n",
+        "                if (tmp > 0):\n",
+        "                    break\n",
+        "                else:\n",
+        "                    # check #2:\n",
+        "                    # loop from the end of sorted array, stop the loop if the sum is less than 0\n",
+        "                    for k in range(len(srt)-1, j, -1):\n",
+        "                        if ((tmp + srt[k]) == 0):\n",
+        "                            zerosumlist.append([srt[i],srt[j],srt[k]])\n",
+        "                        elif ((tmp +srt[k]) < 0):\n",
+        "                            break\n",
+        "    \n",
+        "    return zerosumlist\n",
+        "\n",
+        "def find_all_combination_by_sort_and_loop(cnt):\n",
+        "    samples = np.random.RandomState(0).randint(low=-10000, high=10000, size=cnt)\n",
+        "    rlt = sum_to_zero_by_sort_and_loop(samples)\n",
+        "    print('find {} groups which sum==0'.format(len(rlt)))"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "wTZefmY1p1nw",
+        "colab_type": "text"
+      },
+      "source": [
+        "### the sorting takes no time, and the final result takes less than 4 seconds now"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "kItuXEYkpzPb",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 68
+        },
+        "outputId": "266cbbe6-86fd-45fc-a444-99eddb5da3f7"
+      },
+      "source": [
+        "find_all_combination_by_sort_and_loop(500)"
+      ],
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "[ sort the array ] executed in 0:00:00.001152\n",
+            "[ find all group on sorted array ] executed in 0:00:03.347215\n",
+            "find 725 groups which sum==0\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "IdcSzL_hp4kx",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        ""
+      ],
+      "execution_count": 0,
+      "outputs": []
+    }
+  ]
+}
